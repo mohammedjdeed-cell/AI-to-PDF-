@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import { Printer, Sparkles, FileDown, Type, RefreshCw } from 'lucide-react';
+import { Printer, Sparkles, FileDown, Type } from 'lucide-react';
 
 const INITIAL_MARKDOWN = `# Executive Summary: Q3 Performance
 
@@ -10,51 +10,50 @@ Here is an analysis of your metrics.
 ### Key Highlights
 * **Revenue:** $2.4M (up 18% QoQ)
 * **Active Nodes:** 1,240 operational instances
-* **Churn Rate:** Drop to an all-time low of 1.2%
-
-## Strategic Overview
-Our multi-region redundancy architecture has resolved previous latency bottlenecks across the EU zones. 
-
-| Region | Uptime % | Latency |
-| :--- | :--- | :--- |
-| US-East | 99.99% | 24ms |
-| EU-Central | 99.95% | 38ms |
-| AP-South | 99.90% | 65ms |
-
-> *"The improvements implemented in early August laid the foundation for sustainable scale."*
-
-### Next Steps
-1. Scale up AP-South cache clusters.
-2. Complete zero-trust migration by mid Q4.`;
+`;
 
 export default function App() {
   const [input, setInput] = useState(INITIAL_MARKDOWN);
   const [theme, setTheme] = useState('theme-modern');
 
-  // Strip typical Gemini conversation noise
+  // Strip conversational noise
   const cleanGeminiArtifacts = () => {
     let text = input;
-    // Strip leading conversational phrases
     text = text.replace(/^(Sure|Here|Certainly|I have|Here is|Below is)[^\n]*:\n+/im, '');
-    // Strip trailing conversational sign-offs
     text = text.replace(/\n+(Hope this helps|Let me know if you need|Feel free to ask)[^\n]*$/im, '');
     setInput(text.trim());
   };
 
-  // Convert raw markdown into safe, structured HTML
+  // Safely extract and process content (handles both HTML & Markdown)
   const getRenderedHTML = () => {
-    const rawHTML = marked.parse(input, { breaks: true, gfm: true });
+    let contentToProcess = input;
+
+    // Check if input is a complete HTML document
+    if (/<html[\s\S]*>/i.test(input) || /<body[\s\S]*>/i.test(input)) {
+      // Extract only what's inside <body>...</body>
+      const bodyMatch = input.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+      if (bodyMatch && bodyMatch[1]) {
+        contentToProcess = bodyMatch[1];
+      }
+      // Sanitize pure HTML (allow safe inline styles and tables)
+      return DOMPurify.sanitize(contentToProcess, {
+        ADD_TAGS: ['style'],
+        ADD_ATTR: ['style', 'target', 'border', 'cellpadding', 'cellspacing']
+      });
+    }
+
+    // Otherwise, parse as Markdown
+    const rawHTML = marked.parse(contentToProcess, { breaks: true, gfm: true });
     return DOMPurify.sanitize(rawHTML);
   };
 
-  // Fire Native Print-to-PDF Engine
   const exportPDF = () => {
     window.print();
   };
 
   return (
     <div className="app-container">
-      {/* Control Workspace (Will not show in the generated PDF) */}
+      {/* Sidebar Controls */}
       <div className="sidebar no-print">
         <div className="sidebar-header">
           <h1><FileDown size={20} color="#38bdf8" /> DocuCraft AI</h1>
@@ -80,12 +79,12 @@ export default function App() {
 
         <div className="editor-wrapper">
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>
-            PASTE GEMINI MARKDOWN / TEXT
+            PASTE GEMINI HTML / MARKDOWN
           </label>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Paste your unformatted AI content here..."
+            placeholder="Paste raw markdown or HTML code here..."
           />
         </div>
 
@@ -96,7 +95,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Live A4 Interactive Sheet (Matches exact print engine) */}
+      {/* Live A4 Viewport */}
       <div className="preview-viewport">
         <div className={`paper-sheet ${theme}`}>
           <div 
