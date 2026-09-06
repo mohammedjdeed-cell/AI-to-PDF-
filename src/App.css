@@ -5,194 +5,200 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: #0f172a;
-  color: #334155;
+  color: #f8fafc;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.app-container {
+.layout {
   display: flex;
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
-  position: relative;
+  flex-direction: row;
 }
 
-.sidebar {
-  width: 450px;
-  min-width: 450px;
+/* Mobile Tab Nav (Hidden on Desktop) */
+.mobile-nav {
+  display: none;
   background: #1e293b;
-  color: #f8fafc;
+  border-bottom: 1px solid #334155;
+  padding: 8px;
+  gap: 8px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.nav-btn.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}
+
+/* Panes */
+.pane {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #334155;
-  z-index: 50; /* Keeps sidebar always on top */
+  height: 100%;
 }
 
-.sidebar-header {
-  padding: 20px;
+.editor-pane {
+  width: 460px;
+  min-width: 360px;
+  background: #1e293b;
+  border-right: 1px solid #334155;
+}
+
+.pane-header {
+  padding: 16px;
   border-bottom: 1px solid #334155;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.sidebar-header h1 {
-  font-size: 1.1rem;
-  font-weight: 700;
+.title-group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.controls-pane {
-  padding: 15px 20px;
-  display: flex;
-  gap: 10px;
-  background: #0f172a;
-  border-bottom: 1px solid #334155;
+.title-group h2 {
+  font-size: 1rem;
+  font-weight: 700;
 }
 
-.editor-wrapper {
-  flex: 1;
-  padding: 20px;
+.tool-btn {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #334155;
+  color: #f8fafc;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 textarea {
-  width: 100%;
   flex: 1;
+  padding: 16px;
   background: #090d16;
-  border: 1px solid #334155;
-  border-radius: 8px;
   color: #e2e8f0;
-  padding: 14px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', monospace, Consolas;
   font-size: 0.85rem;
-  resize: none;
+  line-height: 1.5;
+  border: none;
   outline: none;
+  resize: none;
 }
 
-textarea:focus {
-  border-color: #38bdf8;
-}
-
-.actions-pane {
-  padding: 20px;
+.pane-footer {
+  padding: 16px;
   border-top: 1px solid #334155;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: #1e293b;
 }
 
-.btn {
+.export-btn {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
+  padding: 14px;
+  background: #38bdf8;
+  color: #0f172a;
   border: none;
-  transition: all 0.2s ease;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
 }
 
-.btn-primary { background: #38bdf8; color: #0f172a; }
-.btn-primary:hover { background: #0ea5e9; }
-.btn-secondary { background: #334155; color: #f8fafc; }
-.btn-secondary:hover { background: #475569; }
+.export-btn:hover {
+  background: #0ea5e9;
+}
 
-/* Viewport & Paper Containment */
-.preview-viewport {
+/* Sandbox Sheet Stage */
+.preview-pane {
   flex: 1;
-  background: #334155;
-  overflow-y: auto;
-  overflow-x: auto;
-  padding: 40px;
+  background: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 24px;
+}
+
+.sheet-stage {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  width: 100%;
+  height: 100%;
 }
 
-.paper-sheet {
-  background: white;
+/* Simulated A4 Container using iframe */
+.isolated-sheet {
   width: 210mm;
+  height: 100%;
   min-height: 297mm;
-  padding: 20mm;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  border-radius: 2px;
-  position: relative;
-  isolation: isolate; /* Stops elements inside from escaping */
+  background: white;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
 }
 
-/* Containment rules for pasted Gemini HTML */
-.document-content {
-  width: 100%;
-  position: relative;
-}
-
-.document-content * {
-  max-width: 100% !important;
-}
-
-/* Neutralize fixed positioning that breaks layouts */
-.document-content [style*="position: fixed"],
-.document-content [style*="position:fixed"] {
-  position: relative !important;
-}
-
-/* General Typography & Tables */
-.document-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-}
-
-.document-content th, .document-content td {
-  border: 1px solid #cbd5e1;
-  padding: 8px 12px;
-}
-
-/* ==========================================
-   PRINT MEDIA RULES (PDF EXPORT)
-========================================== */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 15mm 15mm 15mm 15mm;
+/* ======================================================
+   MOBILE (ANDROID) OPTIMIZATIONS
+====================================================== */
+@media screen and (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+    padding-top: 55px; /* Height for mobile-nav */
   }
 
-  body {
-    background: white !important;
-    color: black !important;
+  .mobile-nav {
+    display: flex;
   }
 
-  .no-print, .sidebar {
-    display: none !important;
+  .pane {
+    display: none;
+    width: 100%;
+    height: calc(100vh - 55px);
   }
 
-  .app-container, .preview-viewport {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    background: transparent !important;
+  .pane.mobile-visible {
+    display: flex;
   }
 
-  .paper-sheet {
-    box-shadow: none !important;
-    padding: 0 !important;
-    width: 100% !important;
-    min-height: auto !important;
+  .preview-pane {
+    padding: 10px;
   }
 
-  /* Keep exam questions/tables from breaking awkwardly across pages */
-  h1, h2, h3, tr, table, img, .situationskarte {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+  .isolated-sheet {
+    width: 100%;
+    min-height: 100%;
+    box-shadow: none;
   }
 }
