@@ -10,23 +10,23 @@ body {
   color: #334155;
 }
 
-/* App Container Layout */
 .app-container {
   display: flex;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  position: relative;
 }
 
-/* Left Workspace Panel */
 .sidebar {
   width: 450px;
+  min-width: 450px;
   background: #1e293b;
   color: #f8fafc;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #334155;
-  z-index: 10;
+  z-index: 50; /* Keeps sidebar always on top */
 }
 
 .sidebar-header {
@@ -87,7 +87,6 @@ textarea:focus {
   gap: 10px;
 }
 
-/* Buttons */
 .btn {
   display: flex;
   align-items: center;
@@ -102,149 +101,76 @@ textarea:focus {
   transition: all 0.2s ease;
 }
 
-.btn-primary {
-  background: #38bdf8;
-  color: #0f172a;
-}
+.btn-primary { background: #38bdf8; color: #0f172a; }
 .btn-primary:hover { background: #0ea5e9; }
-
-.btn-secondary {
-  background: #334155;
-  color: #f8fafc;
-}
+.btn-secondary { background: #334155; color: #f8fafc; }
 .btn-secondary:hover { background: #475569; }
 
-/* Right Viewport: A4 Sheet Paper Simulator */
+/* Viewport & Paper Containment */
 .preview-viewport {
   flex: 1;
-  background: #475569;
+  background: #334155;
   overflow-y: auto;
+  overflow-x: auto;
   padding: 40px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .paper-sheet {
   background: white;
   width: 210mm;
   min-height: 297mm;
-  padding: 25mm 20mm;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  padding: 20mm;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
   border-radius: 2px;
+  position: relative;
+  isolation: isolate; /* Stops elements inside from escaping */
 }
 
-/* Document Themes */
-.theme-modern {
-  font-family: 'Inter', sans-serif;
-  color: #1e293b;
+/* Containment rules for pasted Gemini HTML */
+.document-content {
+  width: 100%;
+  position: relative;
 }
 
-.theme-academic {
-  font-family: 'Merriweather', serif;
-  color: #111827;
-  line-height: 1.8;
+.document-content * {
+  max-width: 100% !important;
 }
 
-/* Typography Engine */
-.document-content h1 {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 1.2rem;
-  color: #0f172a;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 8px;
+/* Neutralize fixed positioning that breaks layouts */
+.document-content [style*="position: fixed"],
+.document-content [style*="position:fixed"] {
+  position: relative !important;
 }
 
-.document-content h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-top: 1.5rem;
-  margin-bottom: 0.8rem;
-  color: #1e293b;
-}
-
-.document-content h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.document-content p {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.document-content ul, .document-content ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
-}
-
-.document-content li {
-  margin-bottom: 0.3rem;
-  line-height: 1.5;
-}
-
+/* General Typography & Tables */
 .document-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .document-content th, .document-content td {
   border: 1px solid #cbd5e1;
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 0.9rem;
+  padding: 8px 12px;
 }
 
-.document-content th {
-  background-color: #f1f5f9;
-  font-weight: 600;
-}
-
-.document-content pre {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 12px;
-  overflow-x: auto;
-  margin: 1rem 0;
-}
-
-.document-content code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85em;
-  background: #f1f5f9;
-  padding: 2px 4px;
-  border-radius: 4px;
-}
-
-.document-content blockquote {
-  border-left: 4px solid #38bdf8;
-  padding-left: 15px;
-  color: #475569;
-  font-style: italic;
-  margin: 1rem 0;
-}
-
-/* =========================================================
-   NATIVE VECTOR PRINT ENGINE (CRITICAL FOR REAL PDF EXPORT)
-========================================================= */
+/* ==========================================
+   PRINT MEDIA RULES (PDF EXPORT)
+========================================== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 20mm 15mm 20mm 15mm;
+    margin: 15mm 15mm 15mm 15mm;
   }
 
   body {
-    background: transparent !important;
+    background: white !important;
     color: black !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
   }
 
-  /* Completely strip the interface */
   .no-print, .sidebar {
     display: none !important;
   }
@@ -254,7 +180,7 @@ textarea:focus {
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
-    background: none !important;
+    background: transparent !important;
   }
 
   .paper-sheet {
@@ -262,17 +188,11 @@ textarea:focus {
     padding: 0 !important;
     width: 100% !important;
     min-height: auto !important;
-    border-radius: 0 !important;
   }
 
-  /* Orphan & Page-Break Safeguards */
-  h1, h2, h3, tr, img, pre, blockquote {
+  /* Keep exam questions/tables from breaking awkwardly across pages */
+  h1, h2, h3, tr, table, img, .situationskarte {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-
-  h1, h2, h3 {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
   }
 }
